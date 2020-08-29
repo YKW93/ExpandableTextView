@@ -1,6 +1,8 @@
 # ExpandableTextView
 Read More TextView for Android
 
+![](https://user-images.githubusercontent.com/41371709/91629351-4adcb080-ea03-11ea-8210-fbda11379b21.gif)
+
 ## Usage
 #### Gradle
 ```gradle
