@@ -33,6 +33,7 @@ dependencies {
 - `expandable_text_size` (14dp)
 
 #### Fetures
+- expand/colleapse animation
 
 ## License  
 ```  
