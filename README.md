@@ -7,15 +7,17 @@ Read More TextView for Android
 #### Gradle
 ```gradle
 dependencies {
-    implementation 'com.wayne.expandabletextview:expandable-textview:1.0.0'
+    implementation 'com.wayne.expandabletextview:expandable-textview:1.1.0'
 }
 ```
 
 #### How to use
+* xml
 ```xml
 <com.wayne.expandabletextview.ExpandableTextView
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    app:expandable_text_font="@font/roboto_bold"                                             
     app:expandable_gradient_view_height="16dp"
     app:expandable_text="text"
     app:expandable_text_collapsedLines="3"
@@ -24,13 +26,36 @@ dependencies {
     app:expandable_text_size="14sp" />
 ```
 
+* kotlin
+```kotlin
+class MainActivity : AppCompatActivity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_main)
+
+        et_test.stateChangeListener = object : OnStateChangeListener {
+            override fun onStateChanged(state: ExpandableTextView.State) {
+                tv_current_state.text = state.name
+            }
+        }
+        // change font
+        et_test.textTypeface = ResourcesCompat.getFont(this, R.font.roboto_bold)
+    }
+}
+```
+
+
 #### Attributes
 - `expandable_gradient_view_height` (16dp)
 - `expandable_text` ("")
 - `expandable_text_collapsedLines` (4) 
-- `expandable_text_color` (0xFF000000) 
+- `expandable_text_color` (Color.BLACK) 
 - `expandable_text_line_spacing_extra` (8dp) 
 - `expandable_text_size` (14dp)
+- `expandable_text_font`
+
+#### Important note while applying font
+- You must create a directory to res/value/ and place the font file within that path.
 
 #### Fetures
 - expand/colleapse animation
