@@ -14,6 +14,8 @@ import android.view.View
 import android.widget.LinearLayout
 import androidx.annotation.Px
 import androidx.core.content.res.ResourcesCompat
+import androidx.core.view.doOnLayout
+import androidx.core.view.isVisible
 import kotlinx.android.synthetic.main.expandable_textview_layout.view.*
 
 class ExpandableTextView @JvmOverloads constructor(
@@ -27,8 +29,14 @@ class ExpandableTextView @JvmOverloads constructor(
     private var currentState = State.EXPANDED
         set(value) {
             field = value
+            when (value) {
+                State.EXPANDED -> expandTextView()
+                else -> collapseTextView()
+            }
             stateChangeListener?.onStateChanged(value)
         }
+
+    private var isActivateExpansion = false
 
     val isExpanded
         get() = currentState == State.EXPANDED
@@ -39,7 +47,11 @@ class ExpandableTextView @JvmOverloads constructor(
     var text: String = ""
         set(value) {
             field = value
-            tv_origin_text.text = value
+            doOnLayout {
+                post {
+                    updateText(value)
+                }
+            }
         }
 
     var textColor: Int = Color.BLACK
@@ -131,35 +143,33 @@ class ExpandableTextView @JvmOverloads constructor(
     override fun onFinishInflate() {
         super.onFinishInflate()
         initTextViewClickListener()
-        collapseTextView()
     }
 
     private fun initTextViewClickListener() {
         tv_origin_text.setOnClickListener {
-            if (isExpanded) {
-                collapseTextView()
+            currentState = if (isExpanded) {
+                State.COLLAPSED
             } else {
-                expandTextView()
+                State.EXPANDED
             }
         }
     }
 
+    private fun updateText(value: String) {
+        tv_origin_text.maxLines = Int.MAX_VALUE
+        tv_origin_text.text = value
+        isActivateExpansion = tv_origin_text.lineCount > collapsedLines
+        currentState = State.COLLAPSED
+    }
+
     private fun expandTextView() {
-        if (currentState == State.EXPANDED) {
-            return
-        }
-        currentState = State.EXPANDED
         tv_origin_text.maxLines = Int.MAX_VALUE
         view_gradient.visibility = View.GONE
     }
 
     private fun collapseTextView() {
-        if (currentState == State.COLLAPSED) {
-            return
-        }
-        currentState = State.COLLAPSED
         tv_origin_text.maxLines = collapsedLines
-        view_gradient.visibility = View.VISIBLE
+        view_gradient.isVisible = isActivateExpansion
     }
 
     enum class State {
