@@ -5,7 +5,7 @@ publish {
     userOrg = 'kiyong48'
     groupId = 'com.wayne.expandabletextview'
     artifactId = 'expandable-textview'
-    publishVersion = '1.0.0'
+    publishVersion = '1.1.0'
     desc = 'https://github.com/YKW93/ExpandableTextview'
     website = 'https://github.com/YKW93/ExpandableTextview'
     issueTracker = 'https://github.com/YKW93/ExpandableTextview/issues'

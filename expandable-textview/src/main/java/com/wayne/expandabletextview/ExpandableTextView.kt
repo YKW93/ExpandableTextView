@@ -1,8 +1,11 @@
 package com.wayne.expandabletextview
 
 import android.content.Context
+import android.content.res.Resources
 import android.content.res.TypedArray
 import android.graphics.Color
+import android.graphics.Typeface
+import android.os.Build
 import android.text.TextUtils
 import android.util.AttributeSet
 import android.util.TypedValue.COMPLEX_UNIT_PX
@@ -10,6 +13,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.widget.LinearLayout
 import androidx.annotation.Px
+import androidx.core.content.res.ResourcesCompat
 import kotlinx.android.synthetic.main.expandable_textview_layout.view.*
 
 class ExpandableTextView @JvmOverloads constructor(
@@ -42,6 +46,12 @@ class ExpandableTextView @JvmOverloads constructor(
         set(value) {
             field = value
             tv_origin_text.setTextColor(value)
+        }
+
+    var textTypeface: Typeface? = null
+        set(value) {
+            field = value
+            tv_origin_text.typeface = value
         }
 
     @Px
@@ -87,6 +97,19 @@ class ExpandableTextView @JvmOverloads constructor(
 
         textColor =
             typedArray.getColor(R.styleable.ExpandableTextView_expandable_text_color, Color.BLACK)
+
+        try {
+            textTypeface = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                typedArray.getFont(R.styleable.ExpandableTextView_expandable_text_font)
+            } else {
+                ResourcesCompat.getFont(
+                    context,
+                    typedArray.getResourceId(R.styleable.ExpandableTextView_expandable_text_font, 0)
+                )
+            }
+        } catch (e: Resources.NotFoundException) {
+            e.printStackTrace()
+        }
 
         textSize = typedArray.getDimensionPixelSize(
             R.styleable.ExpandableTextView_expandable_text_size,
