@@ -14,7 +14,6 @@ import android.view.View
 import android.widget.LinearLayout
 import androidx.annotation.Px
 import androidx.core.content.res.ResourcesCompat
-import androidx.core.view.isVisible
 import kotlinx.android.synthetic.main.expandable_textview_layout.view.*
 
 class ExpandableTextView @JvmOverloads constructor(
@@ -25,17 +24,24 @@ class ExpandableTextView @JvmOverloads constructor(
 
     var stateChangeListener: OnStateChangeListener? = null
 
-    var currentState = State.EXPANDED
+    var currentState = State.COLLAPSED
         private set(value) {
             field = value
+            when (value) {
+                State.EXPANDED -> {
+                    tv_origin_text.maxLines = Int.MAX_VALUE
+                    view_gradient.visibility = View.GONE
+                }
+                State.COLLAPSED -> {
+                    tv_origin_text.maxLines = collapsedLines
+                    view_gradient.visibility = View.VISIBLE
+                }
+            }
             stateChangeListener?.onStateChanged(value)
         }
 
-    private var isActivateExpansion = false
-        set(value) {
-            field = value
-            view_gradient.isVisible = value
-        }
+    var isActivateExpansion = false
+        private set
 
     val isExpanded
         get() = currentState == State.EXPANDED
@@ -155,11 +161,18 @@ class ExpandableTextView @JvmOverloads constructor(
         }
     }
 
-    private fun updateText(value: String) {
+    private fun updateText(value: String?) {
         tv_origin_text.maxLines = Int.MAX_VALUE
         tv_origin_text.text = value
         isActivateExpansion = tv_origin_text.lineCount > collapsedLines
-        toggle()
+
+        if (!isActivateExpansion || isExpanded || tv_origin_text.text.isNullOrEmpty()) {
+            view_gradient.visibility = View.GONE
+            return
+        }
+
+        tv_origin_text.maxLines = collapsedLines
+        view_gradient.visibility = View.VISIBLE
     }
 
     fun expand() {
@@ -167,8 +180,6 @@ class ExpandableTextView @JvmOverloads constructor(
             return
         }
         currentState = State.EXPANDED
-        tv_origin_text.maxLines = Int.MAX_VALUE
-        view_gradient.visibility = View.GONE
     }
 
     fun collapse() {
@@ -176,8 +187,6 @@ class ExpandableTextView @JvmOverloads constructor(
             return
         }
         currentState = State.COLLAPSED
-        tv_origin_text.maxLines = collapsedLines
-        view_gradient.visibility = View.VISIBLE
     }
 
     enum class State {
