@@ -8,13 +8,12 @@ import android.graphics.Typeface
 import android.os.Build
 import android.text.TextUtils
 import android.util.AttributeSet
-import android.util.TypedValue.COMPLEX_UNIT_PX
+import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.LinearLayout
 import androidx.annotation.Px
 import androidx.core.content.res.ResourcesCompat
-import androidx.core.view.doOnLayout
 import androidx.core.view.isVisible
 import kotlinx.android.synthetic.main.expandable_textview_layout.view.*
 
@@ -26,32 +25,30 @@ class ExpandableTextView @JvmOverloads constructor(
 
     var stateChangeListener: OnStateChangeListener? = null
 
-    private var currentState = State.EXPANDED
-        set(value) {
+    var currentState = State.EXPANDED
+        private set(value) {
             field = value
-            when (value) {
-                State.EXPANDED -> expandTextView()
-                else -> collapseTextView()
-            }
             stateChangeListener?.onStateChanged(value)
         }
 
     private var isActivateExpansion = false
+        set(value) {
+            field = value
+            view_gradient.isVisible = value
+        }
 
     val isExpanded
         get() = currentState == State.EXPANDED
 
+    val isCollapsed
+        get() = currentState == State.COLLAPSED
 
     var collapsedLines: Int = DEFAULT_MAX_LINES
 
     var text: String = ""
         set(value) {
             field = value
-            doOnLayout {
-                post {
-                    updateText(value)
-                }
-            }
+            post { updateText(value) }
         }
 
     var textColor: Int = Color.BLACK
@@ -70,7 +67,7 @@ class ExpandableTextView @JvmOverloads constructor(
     var textSize: Float = dpToPx(14)
         set(value) {
             field = value
-            tv_origin_text.setTextSize(COMPLEX_UNIT_PX, textSize)
+            tv_origin_text.setTextSize(TypedValue.COMPLEX_UNIT_PX, textSize)
         }
 
     @Px
@@ -147,11 +144,14 @@ class ExpandableTextView @JvmOverloads constructor(
 
     private fun initTextViewClickListener() {
         tv_origin_text.setOnClickListener {
-            currentState = if (isExpanded) {
-                State.COLLAPSED
-            } else {
-                State.EXPANDED
-            }
+            toggle()
+        }
+    }
+
+    fun toggle() {
+        when (currentState) {
+            State.COLLAPSED -> expand()
+            State.EXPANDED -> collapse()
         }
     }
 
@@ -159,17 +159,25 @@ class ExpandableTextView @JvmOverloads constructor(
         tv_origin_text.maxLines = Int.MAX_VALUE
         tv_origin_text.text = value
         isActivateExpansion = tv_origin_text.lineCount > collapsedLines
-        currentState = State.COLLAPSED
+        toggle()
     }
 
-    private fun expandTextView() {
+    fun expand() {
+        if (!isActivateExpansion || isExpanded || text.isEmpty()) {
+            return
+        }
+        currentState = State.EXPANDED
         tv_origin_text.maxLines = Int.MAX_VALUE
         view_gradient.visibility = View.GONE
     }
 
-    private fun collapseTextView() {
+    fun collapse() {
+        if (!isActivateExpansion || isCollapsed || text.isEmpty()) {
+            return
+        }
+        currentState = State.COLLAPSED
         tv_origin_text.maxLines = collapsedLines
-        view_gradient.isVisible = isActivateExpansion
+        view_gradient.visibility = View.VISIBLE
     }
 
     enum class State {
