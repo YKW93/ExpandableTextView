@@ -7,7 +7,7 @@ Read More TextView for Android
 #### Gradle
 ```gradle
 dependencies {
-    implementation 'com.wayne.expandabletextview:expandable-textview:1.1.1'
+    implementation 'com.wayne.expandabletextview:expandable-textview:1.1.3'
 }
 ```
 
